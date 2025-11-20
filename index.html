@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>試卷計分互動系統</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #3498db;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .parts-container {
+            margin-top: 20px;
+        }
+        
+        .part {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .part-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .part-title {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .part-total {
+            background-color: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .question {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .question-number {
+            width: 40px;
+            font-weight: bold;
+        }
+        
+        .question-score {
+            width: 100px;
+            margin-right: 10px;
+        }
+        
+        .question-obtained {
+            width: 100px;
+            margin-right: 10px;
+        }
+        
+        .totals {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .totals h3 {
+            margin-bottom: 10px;
+        }
+        
+        .totals div {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .delete-btn {
+            background-color: transparent;
+            color: #e74c3c;
+            font-size: 18px;
+            padding: 5px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .question {
+                flex-wrap: wrap;
+            }
+            
+            .question-number, .question-score, .question-obtained {
+                margin-bottom: 5px;
+            }
+            
+            .part-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .part-header > div {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>試卷計分互動系統</h1>
+        
+        <!-- 科目設定區域 -->
+        <div class="section">
+            <div class="section-title">
+                <span>科目設定</span>
+            </div>
+            <div class="input-group">
+                <label for="subject-name">科目名稱</label>
+                <input type="text" id="subject-name" placeholder="請輸入科目名稱">
+            </div>
+            <div class="input-group">
+                <label for="paper-title">試卷標題</label>
+                <input type="text" id="paper-title" placeholder="請輸入試卷標題">
+            </div>
+        </div>
+        
+        <!-- 試卷結構區域 -->
+        <div class="section">
+            <div class="section-title">
+                <span>試卷結構</span>
+                <button id="add-part-btn" class="btn-success">添加部分</button>
+            </div>
+            <div class="parts-container" id="parts-container">
+                <!-- 部分將在這裡動態添加 -->
+            </div>
+        </div>
+        
+        <!-- 總分顯示區域 -->
+        <div class="totals">
+            <h3>總分統計</h3>
+            <div>總分: <span id="total-score">0</span></div>
+            <div>得分: <span id="obtained-score">0</span></div>
+            <div>得分率: <span id="score-percentage">0%</span></div>
+        </div>
+        
+        <!-- 操作按鈕 -->
+        <div class="action-buttons">
+            <button id="save-btn" class="btn-success">儲存設定</button>
+            <button id="reset-btn" class="btn-danger">重置</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局變量
+        let parts = [];
+        
+        // DOM 加載完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加載儲存的數據
+            loadSavedData();
+            
+            // 添加部分按鈕事件
+            document.getElementById('add-part-btn').addEventListener('click', addPart);
+            
+            // 儲存按鈕事件
+            document.getElementById('save-btn').addEventListener('click', saveData);
+            
+            // 重置按鈕事件
+            document.getElementById('reset-btn').addEventListener('click', resetData);
+            
+            // 初始添加一個部分
+            if (parts.length === 0) {
+                addPart();
+            }
+        });
+        
+        // 添加部分
+        function addPart() {
+            const partId = Date.now(); // 使用時間戳作為唯一ID
+            const part = {
+                id: partId,
+                name: `第${parts.length + 1}部分`,
+                questions: []
+            };
+            
+            parts.push(part);
+            renderParts();
+            
+            // 自動添加一個題目到新部分
+            addQuestion(partId);
+        }
+        
+        // 刪除部分
+        function deletePart(partId) {
+            if (parts.length <= 1) {
+                alert('至少需要保留一個部分！');
+                return;
+            }
+            
+            parts = parts.filter(part => part.id !== partId);
+            renderParts();
+            updateTotals();
+        }
+        
+        // 添加題目
+        function addQuestion(partId) {
+            const part = parts.find(p => p.id === partId);
+            if (!part) return;
+            
+            const questionId = Date.now();
+            part.questions.push({
+                id: questionId,
+                number: part.questions.length + 1,
+                score: 0,
+                obtained: 0
+            });
+            
+            renderParts();
+            updateTotals();
+        }
+        
+        // 刪除題目
+        function deleteQuestion(partId, questionId) {
+            const part = parts.find(p => p.id === partId);
+            if (!part) return;
+            
+            if (part.questions.length <= 1) {
+                alert('至少需要保留一個題目！');
+                return;
+            }
+            
+            part.questions = part.questions.filter(q => q.id !== questionId);
+            
+            // 重新編號
+            part.questions.forEach((q, index) => {
+                q.number = index + 1;
+            });
+            
+            renderParts();
+            updateTotals();
+        }
+        
+        // 計算部分總分
+        function calculatePartTotal(part) {
+            let totalScore = 0;
+            let obtainedScore = 0;
+            
+            part.questions.forEach(question => {
+                totalScore += question.score;
+                obtainedScore += question.obtained;
+            });
+            
+            return {
+                totalScore,
+                obtainedScore
+            };
+        }
+        
+        // 渲染所有部分
+        function renderParts() {
+            const container = document.getElementById('parts-container');
+            container.innerHTML = '';
+            
+            parts.forEach(part => {
+                const partTotals = calculatePartTotal(part);
+                const partElement = document.createElement('div');
+                partElement.className = 'part';
+                
+                partElement.innerHTML = `
+                    <div class="part-header">
+                        <div class="part-title">
+                            <input type="text" value="${part.name}" onchange="updatePartName(${part.id}, this.value)" placeholder="部分名稱">
+                        </div>
+                        <div class="part-total">
+                            部分總分: ${partTotals.obtainedScore} / ${partTotals.totalScore}
+                        </div>
+                        <div>
+                            <button onclick="addQuestion(${part.id})" class="btn-success">添加題目</button>
+                            <button onclick="deletePart(${part.id})" class="btn-danger">刪除部分</button>
+                        </div>
+                    </div>
+                    <div class="questions-container" id="questions-${part.id}">
+                        ${renderQuestions(part)}
+                    </div>
+                `;
+                
+                container.appendChild(partElement);
+            });
+        }
+        
+        // 渲染題目
+        function renderQuestions(part) {
+            return part.questions.map(question => `
+                <div class="question">
+                    <div class="question-number">${question.number}.</div>
+                    <div>滿分:</div>
+                    <input type="number" class="question-score" value="${question.score}" min="0" step="0.5" 
+                           onchange="updateQuestionScore(${part.id}, ${question.id}, this.value)">
+                    <div>得分:</div>
+                    <input type="number" class="question-obtained" value="${question.obtained}" min="0" step="0.5" 
+                           onchange="updateQuestionObtained(${part.id}, ${question.id}, this.value)">
+                    <button onclick="deleteQuestion(${part.id}, ${question.id})" class="delete-btn">×</button>
+                </div>
+            `).join('');
+        }
+        
+        // 更新部分名稱
+        function updatePartName(partId, name) {
+            const part = parts.find(p => p.id === partId);
+            if (part) {
+                part.name = name;
+            }
+        }
+        
+        // 更新題目分數
+        function updateQuestionScore(partId, questionId, score) {
+            const part = parts.find(p => p.id === partId);
+            if (!part) return;
+            
+            const question = part.questions.find(q => q.id === questionId);
+            if (question) {
+                question.score = parseFloat(score) || 0;
+                updateTotals();
+                renderParts(); // 重新渲染以更新部分總分
+            }
+        }
+        
+        // 更新題目得分
+        function updateQuestionObtained(partId, questionId, obtained) {
+            const part = parts.find(p => p.id === partId);
+            if (!part) return;
+            
+            const question = part.questions.find(q => q.id === questionId);
+            if (question) {
+                question.obtained = parseFloat(obtained) || 0;
+                updateTotals();
+                renderParts(); // 重新渲染以更新部分總分
+            }
+        }
+        
+        // 更新總分
+        function updateTotals() {
+            let totalScore = 0;
+            let obtainedScore = 0;
+            
+            parts.forEach(part => {
+                part.questions.forEach(question => {
+                    totalScore += question.score;
+                    obtainedScore += question.obtained;
+                });
+            });
+            
+            const percentage = totalScore > 0 ? ((obtainedScore / totalScore) * 100).toFixed(2) : 0;
+            
+            document.getElementById('total-score').textContent = totalScore;
+            document.getElementById('obtained-score').textContent = obtainedScore;
+            document.getElementById('score-percentage').textContent = `${percentage}%`;
+        }
+        
+        // 儲存數據
+        function saveData() {
+            const subjectName = document.getElementById('subject-name').value;
+            const paperTitle = document.getElementById('paper-title').value;
+            
+            const data = {
+                subjectName,
+                paperTitle,
+                parts,
+                lastSaved: new Date().toISOString()
+            };
+            
+            localStorage.setItem('examScoringSystem', JSON.stringify(data));
+            alert('設定已成功儲存！');
+        }
+        
+        // 加載儲存的數據
+        function loadSavedData() {
+            const savedData = localStorage.getItem('examScoringSystem');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    
+                    document.getElementById('subject-name').value = data.subjectName || '';
+                    document.getElementById('paper-title').value = data.paperTitle || '';
+                    
+                    if (data.parts && data.parts.length > 0) {
+                        parts = data.parts;
+                        renderParts();
+                        updateTotals();
+                    }
+                } catch (e) {
+                    console.error('加載儲存數據時出錯:', e);
+                }
+            }
+        }
+        
+        // 重置數據
+        function resetData() {
+            if (confirm('確定要重置所有數據嗎？此操作無法撤銷！')) {
+                localStorage.removeItem('examScoringSystem');
+                document.getElementById('subject-name').value = '';
+                document.getElementById('paper-title').value = '';
+                parts = [];
+                addPart();
+                updateTotals();
+            }
+        }
+    </script>
+</body>
+</html>
